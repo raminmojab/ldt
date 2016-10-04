@@ -99,7 +99,7 @@ ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 
 
 
     # set packs
-    Packs[[1]] <<- ldtpackarima$new(.self, ...)
+    Packs[[1]] <<- ldtpackarima$new(.self)
 
 
 
