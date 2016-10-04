@@ -36,7 +36,7 @@ ldtpacksub$methods(consider = function(modelerrorse)
         }
         v = v / length(modelerrorse)
 
-        ParentPack$ParentLDT$considernew(modelerrorse[[1]][[1]],e,v)
+        ParentPack$considernew(modelerrorse[[1]][[1]],e,v)
     }
     return(TRUE)
 })

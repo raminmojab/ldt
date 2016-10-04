@@ -8,7 +8,6 @@
 #' @field a list of evaluation objects. Default is a list of AIC, BIC, MAE, MSE, LSR, LnSR, QSR, HSR and CRPSR (for all score rules, normality is assumed)
 #' @field a positive integer that indicates the number of Out-of-sample evaluations. i.e., how many times we should seperate the data into training and evaluation samples and test the forecast accuracy of different models. The default is 1
 #' @field a list of ldtpack objects
-#' @field a list that contains the results for each member of ScoringRules. The i-th element is the results corresponding the i-th member of ScoringRules.
 #' @field other arguments to be passed to other methods such as arima.
 #'
 #' @example
@@ -29,7 +28,6 @@ ldt <- setRefClass("ldt",
                        ScoringRules = 'list',
                        SimulationCount = 'numeric',
                        Packs = 'list',
-                       Results = 'list',
                        ARGS = 'list'))
 
 
@@ -85,22 +83,11 @@ ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 
     ScoringRules <<- evallist
 
 
-    # initialize results
-    Results <<- list()
-    for (i in (1:length(ScoringRules)))
-    {
-        f = list()
-        for (h in (1:MaxHorizon))
-        {
-            f[[h]] = list(NA, NULL)
-        }
-        Results[[i]] <<- f
-    }
+
 
 
     # set packs
     Packs[[1]] <<- ldtpackarima$new(.self)
-
 
 
 })
@@ -144,43 +131,7 @@ ldt$methods(Run = function()
 
 
 
-#----------------------------------------
-#'
-#' @name ldt_considernew
-#'
-#' @field the model based on which the scores are generated
-#' @field the evalation in ScoringRules based on which the scores are generated
-#' @field the generated scores
-#'
-#'
-#----------------------------------------
-ldt$methods(considernew = function(model, eval, scores)
-{
 
-    i = 0
-    for (e in ScoringRules)
-    {
-        i = i + 1
-        if (identical(e,eval))
-        {
-            for (h in (1:MaxHorizon))
-            {
-                cs = Results[[i]][[h]][[1]]
-                s = scores[[h]]
-                if (is.na(cs) ||
-                    (eval$IsPositivelyOriented && s > cs) ||
-                    (eval$IsPositivelyOriented == FALSE && s < cs))
-                {
-                    #print(paste("Comparing: ", cs , " (current) and ", s,sep = "" ))
-                    Results[[i]][[h]] <<- list(s, model)
-                }
-
-            }
-            return()
-        }
-    }
-    stop("Could not find the given scoring rule.")
-})
 
 
 

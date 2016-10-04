@@ -45,7 +45,7 @@ ldtpackarima$methods(initialize = function(parentldt)
         ParentLDT <<- parentldt
         ID <<- "ARIMA FORECAST"
         Description <<- "Different ARIMA models from stats package"
-        setSupportedEvaluations(list("MAE","MSE","LSR","LnSR","QSR","HSR","CRPSR"))
+        setSupportedScoringRules(list("MAE","MSE","LSR","LnSR","QSR","HSR","CRPSR"))
 
         TargetData <<- parentldt$EndoData[,1]
         star = start(TargetData)
@@ -149,6 +149,7 @@ ldtpackarima$methods(initialize = function(parentldt)
         }
 
     }
+    callSuper()
 })
 
 
