@@ -2,7 +2,7 @@
 rondate <- setClass("rondate",
                         slots = c(First = "numeric", Second = "numeric", Frequency = "numeric"),
                         prototype = list(First = 1, Second = 1, Frequency = 1))
-						
+
 setMethod("initialize", "rondate", function(.Object, first,second,frequency)
     {
 	if(frequency==1)
@@ -16,8 +16,8 @@ setMethod("initialize", "rondate", function(.Object, first,second,frequency)
 	.Object@Frequency=frequency
 	return(.Object)
 	})
-						
-						
+
+
 setMethod("print", signature(x = "rondate"),function(x)
 {
     if (x@Frequency == 1)
@@ -81,7 +81,7 @@ setMethod("Convert2RoNDate", signature(object = "character"), function(object) {
                       }
                       )
 
- 
+
 
 
 setGeneric("GetOlderRoNDate",function(date1,date2) { standardGeneric("GetOlderRoNDate") })
@@ -135,7 +135,7 @@ stop("Calculating Interval between two 'RonDate's with different frequencies are
 if (date1@Frequency == 1)
     {
         return(abs(date1@First - date2@First))
-    }	
+    }
 	olddate = GetOlderRoNDate(date1, date2)
 	newdate = GetNewerRoNDate(date1, date2)
     return(frequency * (newdate@First - olddate@First- 1) + newdate@Second + (frequency - olddate@Second))
@@ -185,4 +185,16 @@ if (count == 0)
     }
 })
 
+
+setGeneric(name = "GetTimeSeries", def = function(filepath) { standardGeneric("GetTimeSeries") })
+setMethod("GetTimeSeries", signature(filepath = "character"),function(filepath)
+{
+    headers = read.table(file = filepath, sep = sep, header = FALSE, nrows = 1, row.names = 1, stringsAsFactors = FALSE, encoding = encoding, numerals = numerals)
+    secondrow = read.table(file = filepath, sep = sep, header = FALSE, skip = 1, nrows = 1, row.names = NULL, stringsAsFactors = FALSE, encoding = encoding, numerals = numerals)
+    first_date = toString(secondrow[1, 1])
+    datamats = data.matrix(read.table(file = filepath, sep = sep, header = FALSE, skip = 1, row.names = 1, stringsAsFactors = FALSE, encoding = encoding, numerals = numerals), FALSE)
+    firstdateinfo = Convert2RoNDate(first_date)
+    data_ts = ts(datamats, frequency = firstdateinfo@Frequency, start = c(firstdateinfo@First, firstdateinfo@Second), names = headers)
+return(data_ts)
+    })
 
