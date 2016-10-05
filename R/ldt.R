@@ -8,7 +8,6 @@
 #' @field a list of evaluation objects. Default is a list of AIC, BIC, MAE, MSE, LSR, LnSR, QSR, HSR and CRPSR (for all score rules, normality is assumed)
 #' @field a positive integer that indicates the number of Out-of-sample evaluations. i.e., how many times we should seperate the data into training and evaluation samples and test the forecast accuracy of different models. The default is 1
 #' @field a list of ldtpack objects
-#' @field other arguments to be passed to other methods such as arima.
 #'
 #' @example
 #' load("data/endodata_rand.rda")
@@ -27,8 +26,7 @@ ldt <- setRefClass("ldt",
                        MaxSize = 'numeric',
                        ScoringRules = 'list',
                        SimulationCount = 'numeric',
-                       Packs = 'list',
-                       ARGS = 'list'))
+                       Packs = 'list'))
 
 
 ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 0,0) , maxhorizon = 1,
@@ -40,7 +38,6 @@ ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 
     SimulationCount <<- simulationcount
     EndoData <<- endodata
     ExoData <<- exodata
-    ARGS <<- list(...)
 
     if (length(endodata) == 1)
         return() # this is probably a call while building the package. An error will be raised in Run method.
