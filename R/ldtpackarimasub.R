@@ -1,9 +1,9 @@
 
-ldtpackarimasub <- setRefClass("ldtpackarimasub", 
-                               fields = list(  
+ldtpackarimasub <- setRefClass("ldtpackarimasub",
+                               fields = list(
                                    p = 'numeric',
                                    d = 'numeric',
-                                   q = 'numeric', 
+                                   q = 'numeric',
                                    P = 'numeric',
                                    D = 'numeric',
                                    Q = 'numeric',
@@ -12,26 +12,26 @@ ldtpackarimasub <- setRefClass("ldtpackarimasub",
                                ),
                                contains = "ldtpacksub")
 
-ldtpackarimasub$methods(toString = function(){
+ldtpackarimasub$methods(show = function(){
     return(paste("ARIMA (",p,",", d,",", q,")x(", P,",", D,",", Q,") required model count=", CountRequired, sep = ""))
 })
 
 
 ldtpackarimasub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q){
     if (missing(parentarima) == FALSE)
-    { 
+    {
         ParentPack <<- parentarima
         CountValid <<- 0
         CountFailed <<- 0
-        
+
         p <<- p
-        d <<- d 
+        d <<- d
         q <<- q
         Intercept <<- intercept
-        
+
         if (missing(P) && parentarima$IsSeasonal)
             stop("missing value for seasonal data")
-        
+
         if (missing(P) == FALSE)
         {
             P <<- P
@@ -44,20 +44,23 @@ ldtpackarimasub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q)
             D <<- 0
             Q <<- 0
         }
-        
-        if (is.null(parentarima$XReg))
+
+        if (length(parentarima$XReg) == 0)
         {
-            CountRequired <<- 1 
+            CountRequired <<- 1
         }
         else
-        { 
+        {
             rc = 1
-            for (i in (1:(parentarima$ParentLDT$MaxSize - 1)))
-                rc = rc + choose(ncol(parentarima$XReg), i)
+            if (parentarima$ParentLDT$MaxSize - 1 > 0)
+            {
+                for (i in (1:(parentarima$ParentLDT$MaxSize - 1)))
+                    rc = rc + choose(ncol(parentarima$XReg), i)
+            }
             CountRequired <<- rc
         }
-        
-        
+
+
     }
 })
 
@@ -65,71 +68,71 @@ ldtpackarimasub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q)
 # returns an empty list if any error occured
 # returns a list of 1.Model 2. Forecast error and 3. forecast standard error
 ldtpackarimasub$methods(GetNextModel = function(isfirst){
-    
+
     if (isfirst)
     {
-        message("\t\t",toString())
+        message("\t\t",show())
         message("\t\t Exogenous = NULL")
     }
     else
     {
-        move = .self$movetonext() 
+        move = .self$movetonext()
         if (move == FALSE)
             return(NULL)
         message("\t\t Exogenous=", paste(ExoIndexes ,collapse = ","))
     }
-    
-    
+
+
     res = list()
     h = 0
     tryCatch(
         {
             for (W in ParentPack$EvaluationData)
             {
-                h = h + 1 
+                h = h + 1
                 x = NULL
                 xf = NULL
                 if (is.null(ExoIndexes) == FALSE)
                 {
                     x = W$TrainingSampleExo[,ExoIndexes, drop = FALSE]
                     xf = W$NewXRegValidation[,ExoIndexes, drop = FALSE]
-                } 
+                }
                 model = arima(W$TrainingSampleTarget, order = c(p, d, q),
                               seasonal = list(order = c(P, D, Q), period = NA),
-                              xreg = x, include.mean = Intercept)
+                              xreg = x, include.mean = Intercept, ParentPack$ParentLDT$ARGS)
                 #hor = min(h, ParentPack$ParentLDT$MaxHorizon) # it is not efficient, but I'm not sure other options can be more efficient
-                pre = predict(model, n.ahead = h , newxreg = xf) 
+                pre = predict(model, n.ahead = h , newxreg = xf, ParentPack$ParentLDT$ARGS)
                 err = pre$pred - W$ValidationSample
-                se = pre$se 
+                se = pre$se
                 # if (anyNA(se) || anyNA(err))
-                #     stop("NA found") 
-                res[[length(res) + 1]] = list(model,err,se) 
-                
-            }  
+                #     stop("NA found")
+                res[[length(res) + 1]] = list(model,err,se)
+
+            }
             return(res)
-        }, 
+        },
         error = function(err)
         {
-            ## any error in any evaluation will result in discarding the model 
+            ## any error in any evaluation will result in discarding the model
             return(list())
         }
     )
-    
-    
+
+
 })
 
-## if there is no more move, it set ExoIndexes <<- NULL. Otherwise, it adjusts this vector
-ldtpackarimasub$methods(movetonext = function(){ 
-    
-    if (is.null(ParentPack$XReg))
+
+ldtpackarimasub$methods(movetonext = function(){
+
+    if (length(ParentPack$XReg) == 0 || ParentPack$ParentLDT$MaxSize == 1)
         return(FALSE)
-    
+
     if (is.null(ExoIndexes))
     {
         ExoIndexes <<- 1
         return(TRUE)
     }
-    
+
     maxValue = ncol(ParentPack$XReg)
     maxSize = length(ExoIndexes)
     indexOfFreeMove = 0;
@@ -138,13 +141,13 @@ ldtpackarimasub$methods(movetonext = function(){
     {
         if (indexOfFreeMove == 0)
             break
-        
+
         treshold = maxValue - counter
         if (ExoIndexes[[indexOfFreeMove]] < treshold)
             break
         counter = counter + 1
     }
-    
+
     if (indexOfFreeMove == 0)
     {
         if (maxSize == (ParentPack$ParentLDT$MaxSize - 1))
@@ -161,7 +164,7 @@ ldtpackarimasub$methods(movetonext = function(){
         if (indexOfFreeMove < maxSize)
         {
             for (i in ((indexOfFreeMove + 1):maxSize))
-                ExoIndexes[[i]] <<- ExoIndexes[[i - 1]] + 1 
+                ExoIndexes[[i]] <<- ExoIndexes[[i - 1]] + 1
         }
         return(TRUE)
     }
