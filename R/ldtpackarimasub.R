@@ -99,9 +99,9 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
                 }
                 model = arima(W$TrainingSampleTarget, order = c(p, d, q),
                               seasonal = list(order = c(P, D, Q), period = NA),
-                              xreg = x, include.mean = Intercept, ParentPack$ParentLDT$ARGS)
+                              xreg = x, include.mean = Intercept)
                 #hor = min(h, ParentPack$ParentLDT$MaxHorizon) # it is not efficient, but I'm not sure other options can be more efficient
-                pre = predict(model, n.ahead = h , newxreg = xf, ParentPack$ParentLDT$ARGS)
+                pre = predict(model, n.ahead = h , newxreg = xf)
                 err = pre$pred - W$ValidationSample
                 se = pre$se
                 # if (anyNA(se) || anyNA(err))
@@ -114,6 +114,7 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
         error = function(err)
         {
             ## any error in any evaluation will result in discarding the model
+            print(err)
             return(list())
         }
     )

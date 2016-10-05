@@ -26,8 +26,10 @@ ldtpacksub$methods(consider = function(modelerrorse)
 
     CountValid <<- CountValid + 1
     H = ParentPack$ParentLDT$MaxHorizon
-    for (e in ParentPack$SupportedEvaluations)
+   i = 0
+     for (e in ParentPack$SupportedScoringRules)
     {
+         i = i + 1
         count = 0
         v = vector(mode = "numeric", length = length(H))
         for (l in modelerrorse)
@@ -36,7 +38,7 @@ ldtpacksub$methods(consider = function(modelerrorse)
         }
         v = v / length(modelerrorse)
 
-        ParentPack$considernew(modelerrorse[[1]][[1]],e,v)
+        ParentPack$considernew(modelerrorse[[1]][[1]],i,v)
     }
     return(TRUE)
 })
