@@ -23,6 +23,7 @@ ldtpackarimasub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q)
         ParentPack <<- parentarima
         CountValid <<- 0
         CountFailed <<- 0
+        CountWarning <<- 0
 
         p <<- p
         d <<- d
@@ -100,7 +101,9 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
                 model = arima(W$TrainingSampleTarget, order = c(p, d, q),
                               seasonal = list(order = c(P, D, Q), period = NA),
                               xreg = x, include.mean = Intercept)
+
                 #hor = min(h, ParentPack$ParentLDT$MaxHorizon) # it is not efficient, but I'm not sure other options can be more efficient
+
                 pre = predict(model, n.ahead = h , newxreg = xf)
                 err = pre$pred - W$ValidationSample
                 se = pre$se

@@ -3,7 +3,8 @@ ldtpacksub <- setRefClass("ldtpacksub",
                               ParentPack = 'ldtpack',
                               CountRequired = 'numeric',
                               CountValid = 'numeric',
-                              CountFailed = 'numeric'
+                              CountFailed = 'numeric',
+                              CountWarning = 'numeric'
                           ))
 
 ldtpacksub$methods(show = function(){

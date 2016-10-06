@@ -1,19 +1,17 @@
 
 
 #----------------------------------------
+#' @title Represents a specific forecast package
 #'
+#' @field ParentLDT The main ldt class
+#' @field ID A unique string that represents the related package
+#' @field Description A description for the related package
+#' @field SupportedScoringRules A list of 'evaluation' objects that this package can provide. Not all packages can report (e.g.) AIC
+#' @field Processes A list of ldtpacksub
+#' @field Results A list that contains the results for each member of SupportedScoringRules.
+#' @field AllModels Just in case you wanted to check all the models
 #'
-#' @field the main ldt class
-#' @field a unique string that represents the package
-#' @field a list of 'evaluation' objects that this package can provide. Not all packages can report (e.g.) AIC
-#' @field the size of models set
-#' @field number of estimated and evaluated models
-#' @field number of failed estimation/evaluations (at the end, CountValid + CountFailed must be equal to RequiredCount)
-#' @field a list of ldtpacksub
-#' @field a list that contains the results for each member of SupportedScoringRules.
-#' @field just in case you wanted to check all the models
-#'
-#'
+#' @export
 #----------------------------------------
 ldtpack <- setRefClass("ldtpack",
                        fields = list(
@@ -81,12 +79,13 @@ ldtpack$methods(setSupportedScoringRules = function(namelist)
 })
 
 #----------------------------------------
+#' @title consider a new score
 #'
 #' @name ldtpack_considernew
 #'
-#' @field the model based on which the scores are generated
-#' @field the index of evalation in SupportedScoringRules based on which the scores are generated
-#' @field the generated scores
+#' @param model the model based on which the scores are generated
+#' @param i the index of evalation in SupportedScoringRules based on which the scores are generated
+#' @param scores the generated scores
 #'
 #'
 #----------------------------------------

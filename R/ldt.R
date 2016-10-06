@@ -1,19 +1,22 @@
 #----------------------------------------
+#' @title The main class in ldt package.
 #'
-#' @field a ts that contains the data for the endogenous variable. The target variable (the one we are trying to forecast) is the first variable in this series.
-#' @field a matrix that contains the data for the exogenous variable. note that the frequency and start date will be fetched from EndoData
-#' @field a positive integer that indicates the maximum of the forecast horizons. Forecasts will be provided up to this horizon. Default is 1
-#' @field a positive integer that indicates the maximum lag of models (including AR and MA parts). Default is 1
-#' @field a positive integer that indicates the maximum size of multiple/multivariate models. Default is 1. For example, in arima case, a value of 2 means that models might have zero or one exogenous variables.
-#' @field a list of evaluation objects. Default is a list of AIC, BIC, MAE, MSE, LSR, LnSR, QSR, HSR and CRPSR (for all score rules, normality is assumed)
-#' @field a positive integer that indicates the number of Out-of-sample evaluations. i.e., how many times we should seperate the data into training and evaluation samples and test the forecast accuracy of different models. The default is 1
-#' @field a list of ldtpack objects
-#'
-#' @example
+#' @details This is a reference class. Use $new to generate an instance.
+#' example:
 #' load("data/endodata_rand.rda")
 #' load("data/exodata_rand.rda")
 #' a=ldt$new(endodata,exodata, maxsize = 3)
 #' a$Run()
+#'
+#' @field EndoData A ts that contains the data for the endogenous variable. The target variable (the one we are trying to forecast) is the first variable in this series.
+#' @field ExoData A matrix that contains the data for the exogenous variable. note that the frequency and start date will be fetched from EndoData
+#' @field MaxHorizon A positive integer that indicates the maximum of the forecast horizons. Forecasts will be provided up to this horizon. Default is 1
+#' @field MaxLag A positive integer that indicates the maximum lag of models (including AR and MA parts). Default is 1
+#' @field MaxSize A positive integer that indicates the maximum size of multiple/multivariate models. Default is 1. For example, in arima case, a value of 2 means that models might have zero or one exogenous variables.
+#' @field ScoringRules A list of evaluation objects. Default is a list of AIC, BIC, MAE, MSE, LSR, LnSR, QSR, HSR and CRPSR (for all score rules, normality is assumed)
+#' @field SimulationCount A positive integer that indicates the number of Out-of-sample evaluations. i.e., how many times we should seperate the data into training and evaluation samples and test the forecast accuracy of different models. The default is 1
+#' @field Packs A list of ldtpack objects
+#'
 #'
 #' @export
 #----------------------------------------
@@ -28,7 +31,21 @@ ldt <- setRefClass("ldt",
                        SimulationCount = 'numeric',
                        Packs = 'list'))
 
-
+#----------------------------------------
+#' @title The constructor of ldt class
+#'
+#' @name ldt_initialize
+#'
+#' @param endodata sets EndoData field of the class
+#' @param exodata sets ExoData field of the class
+#' @param maxhorizon sets MaxHorizon field of the class
+#' @param maxlag sets MaxLag field of the class
+#' @param maxsize sets MaxSize field of the class
+#' @param simulationcount sets SimulationCount field of the class
+#'
+#'
+#'
+#----------------------------------------
 ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 0,0) , maxhorizon = 1,
                                   maxlag = 1, maxsize = 1, simulationcount = 1, ...)
 {
@@ -92,6 +109,15 @@ ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 
 
 # I separate the run block from initialize, because it is reference class and it is important to give
 #  the user a chance to change the fields. Thats why any validation must be provided here.
+
+#----------------------------------------
+#' @title Starts the forecasting process
+#'
+#' @name ldt_Run
+#'
+#'
+#'
+#----------------------------------------
 ldt$methods(Run = function()
 {
     if (length(EndoData) == 1)
