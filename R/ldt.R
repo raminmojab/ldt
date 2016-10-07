@@ -17,6 +17,7 @@
 #' @field SimulationCount A positive integer that indicates the number of Out-of-sample evaluations. i.e., how many times we should seperate the data into training and evaluation samples and test the forecast accuracy of different models. The default is 1
 #' @field Packs A list of ldtpack objects
 #'
+#' @import MTS
 #'
 #' @export
 #----------------------------------------
