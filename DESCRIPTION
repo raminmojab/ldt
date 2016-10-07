@@ -8,7 +8,6 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 LazyData: TRUE
 Collate:
-    'utls.R'
     'evaluation.R'
     'ldt.R'
     'ldtpack.R'
