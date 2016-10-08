@@ -1,22 +1,4 @@
-evaluatedata <- setRefClass("evaluatedata",
-                            fields = list(TrainingSampleTarget = 'ts',
-                                          ValidationSample = 'matrix',
-                                          TrainingSampleExo = 'matrix',
-                                          NewXRegValidation = 'matrix'),
-                            methods = list(
-                                initialize = function(trainingsampletarget,validationsample,trainingsampleexo,newxregvalidation)
-                                {
-                                    if (missing(trainingsampletarget) == FALSE)
-                                    {
-                                        TrainingSampleTarget <<- trainingsampletarget
-                                        ValidationSample <<- as.matrix(validationsample)
-                                        if (missing(trainingsampleexo) == FALSE)
-                                        {
-                                            TrainingSampleExo <<- trainingsampleexo
-                                            NewXRegValidation <<- as.matrix(newxregvalidation)
-                                        }
-                                    }
-                                }))
+
 
 ldtpackarima <- setRefClass("ldtpackarima",
                             fields = list(
@@ -24,7 +6,7 @@ ldtpackarima <- setRefClass("ldtpackarima",
                                 IsSeasonal = 'logical',
                                 XReg = 'matrix',
                                 NewXReg = 'matrix',
-                                EvaluationData = 'list' # a list of evaluatedata to be used in out of sample simulations
+                                SimulationData = 'list'
                             ),
                             contains = "ldtpack")
 
@@ -70,24 +52,24 @@ ldtpackarima$methods(initialize = function(parentldt)
             NewXReg <<-  matrix(numeric(0), 0,0)
         }
 
-        ## generate the EvaluationData
+        ## generate the SimulationData
         evalcount = ParentLDT$SimulationCount
-        EvaluationData <<- list()
+        SimulationData <<- list()
         targetmat = as.matrix(TargetData)
 
         for (i in (1:evalcount))
         {
-            t0 = ts(data=targetmat[1:(nrow(targetmat) - i),], frequency = freq, start = star)
+            t0 = ts(data = targetmat[1:(nrow(targetmat) - i),], frequency = freq, start = star)
             v0 = targetmat[(nrow(targetmat) - i + 1):nrow(targetmat),,drop = FALSE]
             if (length(XReg) == 0)
             {
-                EvaluationData[[i]] <<- evaluatedata$new(t0,v0)
+                SimulationData[[i]] <<- simulationdata$new(t0,v0)
             }
             else
             {
                 x0 = XReg[1:(nrow(XReg) - i),,drop = FALSE]
                 nx0 = XReg[(nrow(XReg) - i + 1):nrow(XReg),,drop = FALSE]
-                EvaluationData[[i]] <<- evaluatedata$new(t0,v0,x0,nx0)
+                SimulationData[[i]] <<- simulationdata$new(t0,v0,x0,nx0)
             }
         }
 

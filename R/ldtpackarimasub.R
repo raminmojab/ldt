@@ -88,14 +88,14 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
     h = 0
     tryCatch(
         {
-            for (W in ParentPack$EvaluationData)
+            for (W in ParentPack$SimulationData)
             {
                 h = h + 1
                 x = NULL
                 xf = NULL
                 if (is.null(ExoIndexes) == FALSE)
                 {
-                    x = W$TrainingSampleExo[,ExoIndexes, drop = FALSE]
+                    x = W$TrainingSampleOther[,ExoIndexes, drop = FALSE]
                     xf = W$NewXRegValidation[,ExoIndexes, drop = FALSE]
                 }
                 model = arima(W$TrainingSampleTarget, order = c(p, d, q),

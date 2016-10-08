@@ -8,7 +8,6 @@
 #' @field Score The scoring function. It should get two arguments: vector of forecast errors and vector of forecast standard errors and it should return a vector of the same length
 #'
 #'
-#' @export
 #'
 #----------------------------------------
 evaluation <- setRefClass("evaluation",

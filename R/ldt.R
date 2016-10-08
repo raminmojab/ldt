@@ -17,9 +17,6 @@
 #' @field SimulationCount A positive integer that indicates the number of Out-of-sample evaluations. i.e., how many times we should seperate the data into training and evaluation samples and test the forecast accuracy of different models. The default is 1
 #' @field Packs A list of ldtpack objects
 #'
-#' @import MTS
-#'
-#' @export
 #----------------------------------------
 ldt <- setRefClass("ldt",
                    fields = list(
@@ -43,7 +40,6 @@ ldt <- setRefClass("ldt",
 #' @param maxlag sets MaxLag field of the class
 #' @param maxsize sets MaxSize field of the class
 #' @param simulationcount sets SimulationCount field of the class
-#'
 #'
 #'
 #----------------------------------------
@@ -102,8 +98,8 @@ ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 
 
 
     # set packs
-    Packs[[1]] <<- ldtpackarima$new(.self)
-
+    #Packs[[1]] <<- ldtpackarima$new(.self)
+    Packs[[1]] <<- ldtpacksvarx$new(.self)
 
 })
 
@@ -115,7 +111,6 @@ ldt$methods(initialize = function(endodata = ts(), exodata = matrix(numeric(0), 
 #' @title Starts the forecasting process
 #'
 #' @name ldt_Run
-#'
 #'
 #'
 #----------------------------------------

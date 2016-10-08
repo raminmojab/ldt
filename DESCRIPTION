@@ -8,10 +8,13 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 LazyData: TRUE
 Collate:
+    'utils.R'
     'evaluation.R'
     'ldt.R'
     'ldtpack.R'
     'ldtpacksub.R'
     'ldtpackarimasub.R'
     'ldtpackarima.R'
+    'ldtpacksvarxsub.R'
+    'ldtpacksvarx.R'
 RoxygenNote: 5.0.1

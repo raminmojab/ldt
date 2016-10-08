@@ -11,7 +11,6 @@
 #' @field Results A list that contains the results for each member of SupportedScoringRules.
 #' @field AllModels Just in case you wanted to check all the models
 #'
-#' @export
 #----------------------------------------
 ldtpack <- setRefClass("ldtpack",
                        fields = list(
