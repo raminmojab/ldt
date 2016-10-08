@@ -21,68 +21,71 @@ ldtpacksvarxsub$methods(initialize = function(parentsvarx,p,size,intercept){
         Size <<- size
         Intercept <<- intercept
 
-
-        if (length(parentsvarx$EndoExoData) == 0)
-        {
-            CountRequired <<- 1
-        }
-        else
-        {
-            CountRequired <<- choose(ncol(parentsvarx$EndoExoData), size)
-        }
+        CountRequired <<- choose(ncol(parentsvarx$EndoExoData), size - 1)
 
 
     }
 })
 
 ldtpacksvarxsub$methods(show = function(){
-    return(paste("VARX (", P, ") potential endo-exo count=", NCOL(ParentPack$EndoExoData),
-                 ") required model count=", CountRequired, sep = ""))
+    return(paste("VARX(", P, ") size=", Size,
+                 "; required model count=", CountRequired, sep = ""))
 })
 
 
 ldtpacksvarxsub$methods(GetNextModel = function(isfirst){
-
-    if (isfirst && Size == 1)
+    if (isfirst)
     {
         message("\t\t",show())
         message("\t\t Endogenous-Exogenous=NULL")
+        Indexes <<- as.vector(1:(Size - 1))
+        indEndo = Indexes[Indexes < ParentPack$ExoStartIndex]
     }
     else
     {
-        if (isfirst)
-        {
-            Indexes <<- as.vector(1:Size)
-        }
-        else
+        indEndo = numeric(0)
+        while (length(indEndo) == 0)
         {
             move = .self$movetonext()
             if (move == FALSE)
                 return(NULL)
+            indEndo = Indexes[Indexes < ParentPack$ExoStartIndex]
         }
-        message("\t\t Endogenous-Exogenous=", paste(Indexes ,collapse = ","))
     }
+    message("\t\t Endogenous-Exogenous=", paste(Indexes ,collapse = ","))
 
     res = list()
     h = 0
-    tryCatch(
-        {
+   # tryCatch(
+   #     {
             for (W in ParentPack$SimulationData)
             {
                 h = h + 1
-                z = NULL
-                x = NULL
-                xf = NULL
-                if (is.null(Indexes) == FALSE)
+                z = cbind2(W$TrainingSampleTarget, W$TrainingSampleOther[,indEndo, drop = FALSE])
+
+                print("*****")
+                print(ParentPack$ExoStartIndex)
+                print(paste(Indexes))
+                indExo = Indexes[Indexes >= ParentPack$ExoStartIndex]
+                print(paste(indEndo))
+                print("*****")
+                if (length(indExo) > 0)
                 {
-                    indEndo = Indexes[Indexes < ParentPack$ExoStartIndex]
-                    indExo = Indexes[Indexes >= ParentPack$ExoStartIndex]
-                    z = cbind2(W$TrainingSampleTarget, W$TrainingSampleOther[,indEndo, drop = FALSE])
+                    print("with exo")
                     x = W$TrainingSampleOther[,indExo, drop = FALSE]
                     xf = W$NewXRegValidation[,indExo, drop = FALSE]
+                    print("with exo")
+                    print(paste("cols endo=", NCOL(z)))
+                    print(paste("cols exo=", NCOL(x)))
+                    model = MTS::VARX(zt = z, p = P, xt = x, include.mean = Intercept)
+                    pre = MTS::VARXpred(model, hstep = h, newxt = xf)
                 }
-                model = MTS::VARX(zt = z, p = P, xt = x, include.mean = Intercept)
-                pre = MTS::VARXpred(model, hstep = h, newxt = xf)
+                else
+                {
+                    print("without exo")
+                    model = MTS::VAR(x = z, p = P, include.mean = Intercept)
+                    pre = MTS::VARpred(model, h = h)
+                }
 
                 err = pre$pred - W$ValidationSample
                 se = pre$se
@@ -92,14 +95,14 @@ ldtpacksvarxsub$methods(GetNextModel = function(isfirst){
 
             }
             return(res)
-        },
-        error = function(err)
-        {
-            ## any error in any evaluation will result in discarding the model
-            print(err)
-            return(list())
-        }
-    )
+ #       },
+ #       error = function(err)
+ #       {
+ #           ## any error in any evaluation will result in discarding the model
+ #           print(err)
+ #           return(list())
+ #       }
+ #   )
 
 
 })

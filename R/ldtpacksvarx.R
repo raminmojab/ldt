@@ -41,6 +41,8 @@ ldtpacksvarx$methods(initialize = function(parentldt)
 
         if (NCOL(parentldt$EndoData) > 1)
             endodata = as.matrix(parentldt$EndoData[,2:NCOL(parentldt$EndoData)])
+        else
+            stop("This is not potentially multivariate.")
 
         if (length(parentldt$ExoData) != 0)
         {
@@ -72,6 +74,7 @@ ldtpacksvarx$methods(initialize = function(parentldt)
             ExoStartIndex <<- -1
         }
 
+
         ## generate the SimulationData
         evalcount = ParentLDT$SimulationCount
         SimulationData <<- list()
@@ -97,7 +100,7 @@ ldtpacksvarx$methods(initialize = function(parentldt)
         Processes <<- list()
         for (p in 1:parentldt$MaxLag)
         {
-            for (size in 1:parentldt$MaxSize)
+            for (size in 2:parentldt$MaxSize) # just multivariates
             {
                 Processes[[length(Processes) + 1]] <<- ldtpacksvarxsub$new(.self,p,size,TRUE)
                 Processes[[length(Processes) + 1]] <<- ldtpacksvarxsub$new(.self,p,size,FALSE)
