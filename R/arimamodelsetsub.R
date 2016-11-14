@@ -1,5 +1,22 @@
 
-ldtpackarimasub <- setRefClass("ldtpackarimasub",
+#----------------------------------------
+#' @title A subset of a \code{arimamodelset}
+#'
+#' @description A set of ARIMA models defined in \code{arimamodelset} class. It contains \code{modelsetsub}.
+#'
+#' @field p p in ARIMA(p,d,q)x(P,D,Q) model.
+#' @field d d in ARIMA(p,d,q)x(P,D,Q) model.
+#' @field q q in ARIMA(p,d,q)x(P,D,Q) model.
+#' @field P P in ARIMA(p,d,q)x(P,D,Q) model.
+#' @field D D in ARIMA(p,d,q)x(P,D,Q) model.
+#' @field Q Q in ARIMA(p,d,q)x(P,D,Q) model.
+#' @field Intercept Determines whether the ARIMA models in this subset contains intercept.
+#' @field ExoIndexes Determines different exogenous variables based on an indexing approach. A vector of (for example) [2 3] means that the second and third variables in \code{arimamodelset$XReg} are the exogenous variables. This vector will grow in \code{arimamodelsetsub$GetNextModel}.
+#'
+#' @include ldt.R scoringrule.R utils.R modelsetsub.R
+#' @export
+#----------------------------------------
+arimamodelsetsub <- setRefClass("arimamodelsetsub",
                                fields = list(
                                    p = 'numeric',
                                    d = 'numeric',
@@ -10,20 +27,29 @@ ldtpackarimasub <- setRefClass("ldtpackarimasub",
                                    Intercept = 'logical',
                                    ExoIndexes = 'vector'
                                ),
-                               contains = "ldtpacksub")
-
-ldtpackarimasub$methods(show = function(){
-    return(paste("ARIMA (",p,",", d,",", q,")x(", P,",", D,",", Q,") required model count=", CountRequired, sep = ""))
-})
+                               contains = "modelsetsub")
 
 
-ldtpackarimasub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q){
+#----------------------------------------
+#' @title The constructor of \code{arimamodelsetsub} class
+#' @name arimamodelsetsub_initialize
+#' @description It will generate the required fields in this \code{arimamodelsetsub} and its parent \code{modelsetsub}.
+#' @field parentarima The corresponding \code{arimamodelset} class.
+#' @field p sets \code{p} field of the class.
+#' @field d sets \code{d} field of the class.
+#' @field q sets \code{q} field of the class.
+#' @field intercept sets \code{Intercept} field of the class.
+#' @field P sets \code{P} field of the class.
+#' @field D sets \code{D} field of the class.
+#' @field Q sets \code{Q} field of the class.
+#----------------------------------------
+NULL
+arimamodelsetsub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q){
     if (missing(parentarima) == FALSE)
     {
-        ParentPack <<- parentarima
+        ParentSet <<- parentarima
         CountValid <<- 0
         CountFailed <<- 0
-        CountWarning <<- 0
 
         p <<- p
         d <<- d
@@ -65,10 +91,16 @@ ldtpackarimasub$methods(initialize = function(parentarima,p,d,q,intercept,P,D,Q)
     }
 })
 
-# returns NULL if there is no more move
-# returns an empty list if any error occured
-# returns a list of 1.Model 2. Forecast error and 3. forecast standard error
-ldtpackarimasub$methods(GetNextModel = function(isfirst){
+
+#----------------------------------------
+#' @title see \code{modelsetsub$GetNextModel} description.
+#' @name arimamodelsetsub_GetNextModel
+#' @description see \code{modelsetsub$GetNextModel} description.
+#' @field isfirst see \code{modelsetsub$GetNextModel} description.
+#' @return see \code{modelsetsub$GetNextModel} description.
+#----------------------------------------
+NULL
+arimamodelsetsub$methods(GetNextModel = function(isfirst){
 
     if (isfirst)
     {
@@ -88,7 +120,7 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
     h = 0
     tryCatch(
         {
-            for (W in ParentPack$SimulationData)
+            for (W in ParentSet$SimulationData)
             {
                 h = h + 1
                 x = NULL
@@ -102,7 +134,7 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
                               seasonal = list(order = c(P, D, Q), period = NA),
                               xreg = x, include.mean = Intercept)
 
-                #hor = min(h, ParentPack$ParentLDT$MaxHorizon) # it is not efficient, but I'm not sure other options can be more efficient
+                #hor = min(h, ParentSet$ParentLDT$MaxHorizon) # it is not efficient, but I'm not sure other options can be more efficient
 
                 pre = predict(model, n.ahead = h , newxreg = xf)
                 err = pre$pred - W$ValidationSample
@@ -125,10 +157,15 @@ ldtpackarimasub$methods(GetNextModel = function(isfirst){
 
 })
 
+#----------------------------------------
+#' @title Changes \code{ExoIndexes} field to reach the next ARIMA model
+#' @name arimamodelsetsub_movetonext
+#' @return FALSE if no more move is possible. True, if it moved to the next model.
+#----------------------------------------
+NULL
+arimamodelsetsub$methods(movetonext = function(){
 
-ldtpackarimasub$methods(movetonext = function(){
-
-    if (length(ParentPack$XReg) == 0 || ParentPack$ParentLDT$MaxSize == 1)
+    if (length(ParentSet$XReg) == 0 || ParentSet$ParentLDT$MaxSize == 1)
         return(FALSE)
 
     if (is.null(ExoIndexes))
@@ -137,7 +174,7 @@ ldtpackarimasub$methods(movetonext = function(){
         return(TRUE)
     }
 
-    maxValue = ncol(ParentPack$XReg)
+    maxValue = ncol(ParentSet$XReg)
     maxSize = length(ExoIndexes)
     indexOfFreeMove = 0;
     counter = 0;
@@ -154,7 +191,7 @@ ldtpackarimasub$methods(movetonext = function(){
 
     if (indexOfFreeMove == 0)
     {
-        if (maxSize == (ParentPack$ParentLDT$MaxSize - 1))
+        if (maxSize == (ParentSet$ParentLDT$MaxSize - 1))
             return(FALSE)
         else
         {
@@ -172,4 +209,9 @@ ldtpackarimasub$methods(movetonext = function(){
         }
         return(TRUE)
     }
+})
+
+
+arimamodelsetsub$methods(show = function(){
+    return(paste("ARIMA (",p,",", d,",", q,")x(", P,",", D,",", Q,") required model count=", CountRequired, sep = ""))
 })

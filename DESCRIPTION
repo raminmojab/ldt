@@ -9,12 +9,12 @@ License: What license is it under?
 LazyData: TRUE
 Collate:
     'utils.R'
-    'evaluation.R'
+    'scoringrule.R'
     'ldt.R'
-    'ldtpack.R'
-    'ldtpacksub.R'
-    'ldtpackarimasub.R'
-    'ldtpackarima.R'
-    'ldtpacksvarxsub.R'
-    'ldtpacksvarx.R'
+    'modelset.R'
+    'arimamodelset.R'
+    'modelsetsub.R'
+    'arimamodelsetsub.R'
+    'svarxmodelset.R'
+    'svarxmodelsetsub.R'
 RoxygenNote: 5.0.1
